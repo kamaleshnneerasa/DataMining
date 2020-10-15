@@ -84,6 +84,7 @@ public:
 			vector<int> transaction;
 			int item;
 			while(ss >> item){
+			    if(order.find(item)!=order.end())
 				transaction.push_back(item);
 			}
 			sort(transaction.begin(), transaction.end(), compareItems);
@@ -151,7 +152,8 @@ public:
 		        while(curr->item!=-1){
 		            //cout << curr->item << endl;
 		            int item = curr->item;
-		            itemCount[item] = itemCount[item]+curr->count;
+		            //itemCount[item] = itemCount[item]+curr->count;  this is a really hard bug
+		            itemCount[item] = itemCount[item]+lastNode->count;
 		            curr = curr->parent;
 		        }
 		        cout << "Passed this->" <<endl;
@@ -237,7 +239,7 @@ public:
 
 int main(int argc, char** argv){
 	//Input, Output and Threshold
-	minSup = 0.2;
+	minSup = 0.8;
 	unordered_map<int,int> counter;
 	numTransactions =0;
 	string line;
@@ -269,7 +271,7 @@ int main(int argc, char** argv){
 	FpTree tree;
 	tree.print();
 	//cout << "het----";
-	Node* n = tree.table[3];
+	//Node* n = tree.table[3];
 	//cout << n->item << endl;
 	//cout << (n->next==NULL) << n->next->item<< endl;
 	vector<vector<int>> result = tree.getFrequentItemSets();
