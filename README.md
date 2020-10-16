@@ -8,5 +8,5 @@ Example: ./fptree 20 transact.txt result.txt <br />
 
 # How to run apriori.cpp?
 Compilation: g++-7 -Wall -O3 -std=c++11 apriori.cpp -o apriori <br />
-Running: <br />
-Example: <br />
+Running: ./apriori threshold inputFile outputFile <br />
+Example: ./apriori 20 transact.txt result.txt <br />
