@@ -6,15 +6,17 @@ using namespace std;
 int numTransactions;
 float minSup;
 
+bool outputOrder(int item1, int item2){
+	return (to_string(item1) < to_string(item2));
+}
+
 void printFrquentSets(map<vector<int>, int> F, ofstream& outFile){
 	for(pair<vector<int>,int> itemSet: F){
-		sort(itemSet.first.begin(), itemSet.first.end());
+		sort(itemSet.first.begin(), itemSet.first.end(), outputOrder);
 		for(int item: itemSet.first){
 			outFile << item << " ";
-			cout << item << " ";
 		}
 		outFile << endl;
-		cout << endl;
 	}
 }
 
@@ -78,9 +80,8 @@ int main(int argc, char** argv){
 	minSup = (stoi(argv[1])*1.0)/100;
 	string inputFile = argv[2];
 	string outputFile = argv[3];
-	//minSup = 2.0/10;
-	//string inputFile = "transact.txt";
-	//string outputFile = "result.txt";
+	outputFile = outputFile+".txt";
+
 	map<vector<int>,int> C; //CandidateItem Set(This should be a hashmap)
 	map<vector<int>,int> F; //FrequentItem Set(This can be a set)
 	
@@ -96,7 +97,6 @@ int main(int argc, char** argv){
 	while(getline(inFile, line)){
 		stringstream ss;
 		ss << line;
-		cout << line << endl;
 		int item;
 		while(ss >> item){
 			vector<int> itemSet(1);
@@ -136,7 +136,6 @@ int main(int argc, char** argv){
 		printFrquentSets(F, outFile);
 		total = total+F.size();
 	}
-	cout << "Total frequent sets: "<<total << endl;
 
 }
 
