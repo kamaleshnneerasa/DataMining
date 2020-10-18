@@ -1,15 +1,20 @@
 # DataMining
 Assignment-1
 
-# How to run fptree.cpp?
-Compilation: g++-7 -Wall -O3 -std=c++11 fptree.cpp -o fptree <br />
-Running: ./fptree threshold inputFile outputFile <br />
-Example: ./fptree 20 transact.txt result.txt <br />
+# How to compile?
+./compile.sh
 
-# How to run apriori.cpp?
-Compilation: g++-7 -Wall -O3 -std=c++11 apriori.cpp -o apriori <br />
-Running: ./apriori threshold inputFile outputFile <br />
-Example: ./apriori 20 transact.txt result.txt <br />
+# How to run?
+./2017CS10341.sh input X -apriori output
+./2017CS10341.sh output X -fptree output  
+./2017CS10341.sh input -plot
+
+# List of files submitted
+1. fptree.cpp : The source code of FP-Tree Algorithm
+2. apriori.cpp : The source code of Apriori Algorithm
+3. plot.py : Script to generate the running time plots
+4. compile.sh : Commands to compile source code
+5. 2017CS10341.sh : Executing the code
 
 # Observations
 We observed that the runtime of FP-Tree algorithm at lower threshold values is very better than that of Apriori algorithm. <br />
