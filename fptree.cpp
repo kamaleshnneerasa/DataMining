@@ -27,11 +27,16 @@ bool compareItems(pair<int,int> item1, pair<int,int> item2){
 	return (order[item1.first] < order[item2.first]);
 }
 
+bool outputOrder(int item1, int item2){
+	return (to_string(item1) < to_string(item2));
+}
+
 class Node{
 public:
 	int item;
 	int count;
 	int level;
+	int id;
 	vector<Node*> children;
 	Node* parent;
 	Node* next;
@@ -40,11 +45,12 @@ public:
 	Node(int item, Node* parent){
 		this->item = item;
 		this->parent = parent;
-		this->count = 1;
+		this->count = 0; //changed this
 		vector<Node*> children(order.size()); 
 		this->children = children;
 		if(parent==NULL) this->level = 0;
 		else this->level = parent->level +1;
+		this->id=0;
 	}
 
 	void incrementCount(int itemCount){
@@ -66,19 +72,23 @@ public:
 	vector<Node*> table; //header table 
 	int height;
 	int size;
+
 public:
     FpTree(int condElem){
         table.resize(order.size(), NULL);
 		root = new Node(-1,NULL);
 		this->size=1;
 		this->height =0;
+		root->id = this->size;
     }
+
 	FpTree(string filename){
 		ifstream inFile;
 		inFile.open(filename);
 	    table.resize(order.size());
 		root = new Node(-1,NULL);
 		this->size=1;
+		root->id = this->size;
 		string line;
 		while(getline(inFile, line)){
 			stringstream ss;
@@ -104,6 +114,7 @@ public:
 			if(curr->children[itemId]==NULL){
 			    this->size = this->size+1;
 				node = new Node(item, curr);
+				node->id = this->size;
 				node->count = itemCount;
 				node->next = NULL;
 				curr->children[itemId] = node;
@@ -142,20 +153,19 @@ public:
 		        Node* curr = lastNode->parent;
 		        while(curr->item!=-1){
 		            int item = curr->item;
-		            //itemCount[item] = itemCount[item]+curr->count;  this is a really hard bug
 		            itemCount[item] = itemCount[item]+lastNode->count;
 		            curr = curr->parent;
 		        }
 		        lastNode = lastNode->next;
 		    }
 		    //Checking if this satisfies min
-		    float sup = condItemCount*1.0/numTransactions;
+		    float sup = (condItemCount*1.0)/numTransactions;
 		    if(sup>=minSup){
 		        vector<pair<int,int>> itemList(itemCount.begin(), itemCount.end());
 		        itemList = filter(itemList);
+		        sort(itemList.begin(), itemList.end(), compareCounts); //added
 		        order.clear();
 		        order_vec.clear();
-		    
 		        int index = 0; 
 	            for(pair<int,int> item: itemList){
 		            order[item.first] = index;
@@ -163,21 +173,22 @@ public:
 		            index = index+1;
 	            }
 	            reverse(order_vec.begin(), order_vec.end());
-	            
+
 		        FpTree condTree(condItem);
 		        lastNode = table[condItemId];
+		        float total = 0;
 		        while(lastNode != NULL){
 		            vector<pair<int,int>> condTransaction;
 		            Node* curr = lastNode->parent;
 		            while(curr->item!=-1){
 		                int item = curr->item;
 		                if(order.find(item)!=order.end()){
-		                    condTransaction.push_back(make_pair(item, curr->count));
+		                    condTransaction.push_back(make_pair(item,lastNode->count));
 		                }
-		                sort(condTransaction.begin(),condTransaction.end(),compareItems);
-		                condTree.addTransaction(condTree.root, condTransaction, 0);
 	                    curr = curr->parent;
 		            }
+		            sort(condTransaction.begin(),condTransaction.end(),compareItems);
+		            condTree.addTransaction(condTree.root, condTransaction, 0);
 		            lastNode = lastNode->next;
 		        }
 		        
@@ -216,12 +227,11 @@ public:
 //suppport inputFile outputFile
 int main(int argc, char** argv){
 	//Input, Output and Threshold
-	minSup = (stoi(argv[1])*1.0)/100;
+	minSup = (stof(argv[1])*1.0)/100;
 	string inputFile = argv[2];
 	string outputFile = argv[3];
-	//minSup = 2.0/10.0;
-	//string inputFile = "transact.txt";
-	//string outputFile = "result.txt";
+	outputFile = outputFile+".txt";
+	
 	unordered_map<int,int> counter;
 	numTransactions =0;
 
@@ -239,6 +249,7 @@ int main(int argc, char** argv){
 		numTransactions = numTransactions+1;
 	}
 	inFile.close();
+
 	//Discard all the items that have support less than minSup
 	vector<pair<int,int>> itemList(counter.begin(), counter.end());
 	itemList = filter(itemList);
@@ -250,22 +261,19 @@ int main(int argc, char** argv){
 		order_vec.push_back(item.first);
 	}
 	reverse(order_vec.begin(), order_vec.end());
+
 	FpTree tree(inputFile);
-	//tree.print();
 	vector<vector<int>> result = tree.getFrequentItemSets();
 
 	ofstream outFile;
 	outFile.open(outputFile);
 	for(vector<int>& itemSet: result){
-		sort(itemSet.begin(), itemSet.end());
+		sort(itemSet.begin(), itemSet.end(), outputOrder);
 	    for(int& item: itemSet){
 	    	outFile << item << " ";
-	    	cout << item << " ";
 	    }
 	    outFile << endl;
-	    cout << endl;
 	}
-	cout << result.size() << endl;
 }
 
 
